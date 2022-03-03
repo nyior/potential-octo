@@ -71,7 +71,7 @@ const percentilesEngineLocal = (): void => {
         writeToJsonFile(tenthPercentile, fiftyThPercentile, ninetyThPercentile)
     })
 }
-// percentiles_engine_local()
+// percentilesEngineLocal()
 
 
 /**
@@ -93,23 +93,25 @@ initializeApp(
 )
 
 
-async function percentilesEngineFirestore (){
+const percentilesEngineFirestore = (): void => {
     /**
      * Reads scores data from Firebase's Firestore
      */
     const db = getFirestore()
 
-    const result: any = await getDocs(collection(db, "teamScores"))
-    
-    var scoreData: any[] = []
-    result.forEach((doc: any) => {
-        scoreData.push(doc.data())
-    })
-        
-    const tenthPercentile: number = computePercentile(10, scoreData)
-    const fiftyThPercentile: number = computePercentile(50, scoreData)
-    const ninetyThPercentile: number = computePercentile(90, scoreData)
+    // enable parrallelism with Promise
+    getDocs(collection(db, "teamScores")).then(result => {
+        var scoreData: any[] = []
 
-    writeToJsonFile(tenthPercentile, fiftyThPercentile, ninetyThPercentile)
+        result.forEach((doc: any) => {
+            scoreData.push(doc.data())
+        })
+
+        const tenthPercentile: number = computePercentile(10, scoreData)
+        const fiftyThPercentile: number = computePercentile(50, scoreData)
+        const ninetyThPercentile: number = computePercentile(90, scoreData)
+    
+        writeToJsonFile(tenthPercentile, fiftyThPercentile, ninetyThPercentile)
+    })
 }
 percentilesEngineFirestore()
