@@ -1,5 +1,7 @@
+/**
+ * ____________________________ TRIAL TASK 2--PART-1 LOCAL JSON FILE_______________________________
+ */
 const fs = require('fs').promises;
-
 
 async function readJsonFile(filePath: string) {
     /**
@@ -14,12 +16,20 @@ async function readJsonFile(filePath: string) {
 }
 
 
-async function writeToJsonFile(data: any) {
+async function writeToJsonFile(
+    tenthPercentile: number, fiftyThPercentile: number, ninetyThPercentile: number
+) {
     /**
      * Utility function for writing to a file asynchronously
      */
+     const output: any = {
+        "tenthPercentile": tenthPercentile,
+        "fiftyThPercentile": fiftyThPercentile,
+        "ninetyThPercentile": ninetyThPercentile
+    }
+
     try {
-      data = JSON.stringify(data)
+      let data = JSON.stringify(output)
 
       await fs.writeFile('percentiles_result.json', data);
     } catch (error: any) {
@@ -28,7 +38,7 @@ async function writeToJsonFile(data: any) {
 }
 
 
-const compute_percentile = (kth_percentile: number, scoreData: any) => {
+const computePercentile = (kth_percentile: number, scoreData: any) => {
    /**
     * Utility function for computing the kth percentile
     */
@@ -47,37 +57,59 @@ const compute_percentile = (kth_percentile: number, scoreData: any) => {
 }
 
 
-const percentiles_engine_local = (): void => {
+const percentilesEngineLocal = (): void => {
     /**
      * Reads scores data from a local json file
      */
     readJsonFile("./score_data.json").then(result => {
         let scoreData = result["teamScores"]
 
-        const tenthPercentile: number = compute_percentile(10, scoreData)
-        const fiftyThPercentile: number = compute_percentile(50, scoreData)
-        const ninetyThPercentile: number = compute_percentile(90, scoreData)
+        const tenthPercentile: number = computePercentile(10, scoreData)
+        const fiftyThPercentile: number = computePercentile(50, scoreData)
+        const ninetyThPercentile: number = computePercentile(90, scoreData)
 
-        const output: any = {
-            "tenthPercentile": tenthPercentile,
-            "fiftyThPercentile": fiftyThPercentile,
-            "ninetyThPercentile": ninetyThPercentile
-        }
-
-        writeToJsonFile(output)
+        writeToJsonFile(tenthPercentile, fiftyThPercentile, ninetyThPercentile)
     })
 }
-percentiles_engine_local()
+// percentiles_engine_local()
 
 
-const percentiles_engine_firestore = (): void => {
+/**
+ * ____________________________ TRIAL TASK 2--PART-2 FIREBASE FIRESTORE_______________________________
+ */
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { collection, getDocs, } from "firebase/firestore"; 
+
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+initializeApp( 
+    {
+        apiKey: process.env.API_KEY,
+        authDomain: process.env.AUTH_DOMAIN,
+        projectId: process.env.PROJECT_ID,
+    }
+)
+
+
+async function percentilesEngineFirestore (){
     /**
      * Reads scores data from Firebase's Firestore
      */
-    let scoreData: any = require("./score_data.json")
-    scoreData = scoreData["teamScores"]
+    const db = getFirestore()
+
+    const result: any = await getDocs(collection(db, "teamScores"))
     
-    const fiftyThPercentile: number = compute_percentile(50, scoreData)
-    const seventyFifthPercentile: number = compute_percentile(75, scoreData)
-    const ninetyThPercentile: number = compute_percentile(90, scoreData)
+    var scoreData: any[] = []
+    result.forEach((doc: any) => {
+        scoreData.push(doc.data())
+    })
+        
+    const tenthPercentile: number = computePercentile(10, scoreData)
+    const fiftyThPercentile: number = computePercentile(50, scoreData)
+    const ninetyThPercentile: number = computePercentile(90, scoreData)
+
+    writeToJsonFile(tenthPercentile, fiftyThPercentile, ninetyThPercentile)
 }
+percentilesEngineFirestore()
