@@ -1,0 +1,53 @@
+{
+    "teamScores": [
+        {
+            "teamName": "Team-1",
+            "score": 0
+        },
+
+        {
+            "teamName": "Team-2",
+            "score": 3
+        },
+
+        {
+            "teamName": "Team-3",
+            "score": 2
+        },
+
+        {
+            "teamName": "Team-4",
+            "score": 5.5
+        },
+
+        {
+            "teamName": "Team-5",
+            "score": 7
+        },
+
+        {
+            "teamName": "Team-6",
+            "score": 6.4
+        },
+
+        {
+            "teamName": "Team-7",
+            "score": 3
+        },
+
+        {
+            "teamName": "Team-8",
+            "score": 10
+        },
+
+        {
+            "teamName": "Team-9",
+            "score": 9.7
+        },
+
+        {
+            "teamName": "Team-10",
+            "score": 8
+        }
+    ]
+}
